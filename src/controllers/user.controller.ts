@@ -1,13 +1,13 @@
 import {authenticate, TokenService} from '@loopback/authentication';
-import {Credentials, MyUserService, TokenServiceBindings, User, UserRepository, UserServiceBindings} from '@loopback/authentication-jwt';
+import {Credentials, MyUserService, TokenServiceBindings, UserServiceBindings} from '@loopback/authentication-jwt';
 import {inject} from '@loopback/core';
 import {model, property, repository} from '@loopback/repository';
 import {get, getModelSchemaRef, post, requestBody, SchemaObject} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
-// import {User} from '../models';
-import {UserCredentialsRepository} from '../repositories';
+import {User} from '../models';
+import {UserCredentialsRepository, UserCustomRepository} from '../repositories';
 
 @model()
 export class NewUserRequest extends User {
@@ -49,7 +49,7 @@ export class UserController {
     public userService: MyUserService,
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
-    @repository(UserRepository) protected userRepository: UserRepository,
+    @repository(UserCustomRepository) protected userRepository: UserCustomRepository,
     @repository(UserCredentialsRepository) protected userCredentialsRepository: UserCredentialsRepository,
   ) {}
 
@@ -73,8 +73,6 @@ export class UserController {
     },
   })
   async login(@requestBody(CredentialsRequestBody) credentials: Credentials): Promise<{token: string}> {
-    console.log(`> credentials...................................`);
-    console.log(credentials);
     // ensure the user exists, and the password is correct
     const user = await this.userService.verifyCredentials(credentials);
     // convert a User object into a UserProfile object (reduced set of properties)

@@ -7,7 +7,7 @@ export class User extends Entity {
   @property({
     type: 'number',
     id: 1,
-    generated: false,
+    generated: true,
     updateOnly: true,
   })
   id: number;
